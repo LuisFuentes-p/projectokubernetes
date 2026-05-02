@@ -8,8 +8,10 @@ consumer = None
 for _ in range(10):
     try:
         consumer = KafkaConsumer(
-            "transactions",
+            'transactions',
             bootstrap_servers='kafka:9092',
+            group_id='transactions-group',
+            auto_offset_reset='earliest',
             value_deserializer=lambda m: json.loads(m.decode("utf-8"))
         )
         break
@@ -18,6 +20,7 @@ for _ in range(10):
 
 if consumer is None:
     raise RuntimeError("Unable to connect to Kafka after multiple retries")
+
 
 # SQLite setup
 conn = sqlite3.connect("/data/transactions.db")

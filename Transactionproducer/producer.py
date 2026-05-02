@@ -30,4 +30,4 @@ while True:
     producer.send("transactions", transaction)
     print("Produced:", transaction)
 
-    time.sleep(1)
+    time.sleep(0.5)

@@ -19,6 +19,13 @@ services:
       dockerfile: dockerfile
     depends_on:
       - kafka
+    
+  producer2:
+    build:
+      context: ../Transactionproducer
+      dockerfile: dockerfile
+    depends_on:
+      - kafka
 
   consumer:
     build:
@@ -40,3 +47,19 @@ services:
       - consumer
     volumes:
     - ../transactions:/data
+
+  kafka-exporter:
+    image: danielqsj/kafka-exporter
+    ports:
+      - "9308:9308"
+    environment:
+      KAFKA_SERVER: kafka:9092
+    depends_on:
+      - kafka
+
+  prometheus:
+    image: prom/prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
