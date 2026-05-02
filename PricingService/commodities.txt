@@ -1,0 +1,10 @@
+gold
+silver
+platinum
+oil
+natural_gas
+wheat
+corn
+coffee
+copper
+aluminum

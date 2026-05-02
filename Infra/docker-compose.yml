@@ -14,6 +14,12 @@ services:
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    volumes:
+      - ./init-kafka-topics.sh:/usr/local/bin/init-kafka-topics.sh:ro
+    command: ["bash","-c","/usr/local/bin/init-kafka-topics.sh & /etc/confluent/docker/run"]
+    depends_on:
+      zookeeper:
+        condition: service_started
 
   postgres:
     image: postgres:15
@@ -41,6 +47,28 @@ services:
       - kafka
       - postgres
 
+  processor:
+    build:
+      context: ../TransactionProcessor
+      dockerfile: dockerfile
+    depends_on:
+      - kafka
+      - postgres
+
+  pricing-service:
+    build:
+      context: ../PricingService
+      dockerfile: dockerfile
+    depends_on:
+      - kafka
+
+  pricing-consumer:
+    build:
+      context: ../PricingConsumer
+      dockerfile: dockerfile
+    depends_on:
+      - kafka
+      - postgres
 
   dashboard:
     build:
@@ -62,6 +90,7 @@ services:
       KAFKA_SERVER: kafka:9092
     depends_on:
       - kafka
+    restart: unless-stopped
 
   prometheus:
     image: prom/prometheus

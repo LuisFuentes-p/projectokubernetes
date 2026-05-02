@@ -3,14 +3,15 @@ import json
 import psycopg2
 import time
 
+# --- Kafka consumer ---
 consumer = None
 
 for _ in range(10):
     try:
         consumer = KafkaConsumer(
-            'transactions',
+            'transactions_processed',
             bootstrap_servers='kafka:9092',
-            group_id='transactions-group',
+            group_id='db-consumer-group',
             auto_offset_reset='earliest',
             value_deserializer=lambda m: json.loads(m.decode("utf-8"))
         )
@@ -19,10 +20,9 @@ for _ in range(10):
         time.sleep(5)
 
 if consumer is None:
-    raise RuntimeError("Unable to connect to Kafka after multiple retries")
+    raise RuntimeError("Unable to connect to Kafka")
 
-
-# Postgres setup
+# --- Postgres ---
 conn = psycopg2.connect(
     host="postgres",
     database="transactions_db",
@@ -38,35 +38,38 @@ CREATE TABLE IF NOT EXISTS transactions (
     quantity REAL,
     price REAL,
     total REAL,
+    tx_type TEXT,
     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 )
 """)
 conn.commit()
 
-commodity_prices = {
-    "gold": 70.0,
-    "silver": 25.0,
-    "oil": 80.0
-}
+print("DB Consumer started...")
 
+# --- Consume and insert ---
 for msg in consumer:
     tx = msg.value
 
-    price = commodity_prices.get(tx["commodity"], 0)
-    total = tx["quantity"] * price
+    tx_type = str(tx.get("type", "buy")).lower()
+    quantity = tx.get("quantity", 0)
+    if tx_type == "buy":
+        signed_quantity = -abs(quantity)
+    else:
+        signed_quantity = abs(quantity)
 
-    enriched = (
-        tx["id"],
-        tx["commodity"],
-        tx["quantity"],
-        price,
-        total
+    record = (
+        tx.get("id"),
+        tx.get("commodity"),
+        signed_quantity,
+        tx.get("price"),
+        tx.get("total"),
+        tx_type
     )
 
     cursor.execute(
-        "INSERT INTO transactions (id, commodity, quantity, price, total) VALUES (%s, %s, %s, %s, %s)",
-        enriched
+        "INSERT INTO transactions (id, commodity, quantity, price, total, tx_type) VALUES (%s, %s, %s, %s, %s, %s)",
+        record
     )
     conn.commit()
 
-    print("Consumed + Enriched:", enriched)
+    print("Inserted:", record)
