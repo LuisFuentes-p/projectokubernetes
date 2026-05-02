@@ -1,6 +1,6 @@
 from kafka import KafkaConsumer
 import json
-import sqlite3
+import psycopg2
 import time
 
 consumer = None
@@ -22,8 +22,13 @@ if consumer is None:
     raise RuntimeError("Unable to connect to Kafka after multiple retries")
 
 
-# SQLite setup
-conn = sqlite3.connect("/data/transactions.db")
+# Postgres setup
+conn = psycopg2.connect(
+    host="postgres",
+    database="transactions_db",
+    user="user",
+    password="password"
+)
 cursor = conn.cursor()
 
 cursor.execute("""
@@ -32,7 +37,8 @@ CREATE TABLE IF NOT EXISTS transactions (
     commodity TEXT,
     quantity REAL,
     price REAL,
-    total REAL
+    total REAL,
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 )
 """)
 conn.commit()
@@ -58,7 +64,7 @@ for msg in consumer:
     )
 
     cursor.execute(
-        "INSERT INTO transactions VALUES (?, ?, ?, ?, ?)",
+        "INSERT INTO transactions (id, commodity, quantity, price, total) VALUES (%s, %s, %s, %s, %s)",
         enriched
     )
     conn.commit()

@@ -1,7 +1,7 @@
 import dash
 from dash import dcc, html
 import pandas as pd
-import sqlite3
+import psycopg2
 
 app = dash.Dash(__name__)
 
@@ -16,8 +16,14 @@ app.layout = html.Div([
     [dash.dependencies.Input("interval", "n_intervals")]
 )
 def update_graph(n):
-    conn = sqlite3.connect("/data/transactions.db")
+    conn = psycopg2.connect(
+        host="postgres",
+        database="transactions_db",
+        user="user",
+        password="password"
+    )
     df = pd.read_sql_query("SELECT * FROM transactions", conn)
+    conn.close()
 
     if df.empty:
         return {}
