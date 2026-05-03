@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pricing-consumer
+  namespace: trading-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pricing-consumer
+  template:
+    metadata:
+      labels:
+        app: pricing-consumer
+    spec:
+      containers:
+      - name: pricing-consumer
+        image: pricing-consumer:dev
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: KAFKA_BOOTSTRAP
+          value: kafka.trading-system.svc.cluster.local:9092
+        - name: POSTGRES_HOST
+          value: postgres-postgresql.default.svc.cluster.local
+        envFrom:
+        - secretRef:
+            name: postgres-secret

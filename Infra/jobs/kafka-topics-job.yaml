@@ -1,0 +1,19 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: kafka-topics-init
+  namespace: trading-system
+spec:
+  template:
+    spec:
+      containers:
+      - name: kafka-init
+        image: confluentinc/cp-kafka:7.5.0
+        command:
+        - bash
+        - -c
+        - |
+          kafka-topics --bootstrap-server kafka.trading-system.svc.cluster.local:9092 --create --if-not-exists --topic transactions --partitions 12
+          kafka-topics --bootstrap-server kafka.trading-system.svc.cluster.local:9092 --create --if-not-exists --topic prices --partitions 6 --config cleanup.policy=compact
+          kafka-topics --bootstrap-server kafka.trading-system.svc.cluster.local:9092 --create --if-not-exists --topic transactions_processed --partitions 12
+      restartPolicy: OnFailure

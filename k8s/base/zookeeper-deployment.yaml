@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: zookeeper
+  namespace: trading-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: zookeeper
+  template:
+    metadata:
+      labels:
+        app: zookeeper
+    spec:
+      containers:
+      - name: zookeeper
+        image: bitnami/zookeeper:3.8
+        ports:
+        - containerPort: 2181
+        volumeMounts:
+        - name: zookeeper-data
+          mountPath: /bitnami/zookeeper/data
+        env:
+        - name: ZOO_CFG_SERVER_ID
+          value: "1"
+        - name: ZOO_ENABLE_AUTH
+          value: "no"
+        startupProbe:
+          exec:
+            command:
+            - bash
+            - -c
+            - echo ruok | nc localhost 2181
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          failureThreshold: 10
+      volumes:
+      - name: zookeeper-data
+        emptyDir: {}

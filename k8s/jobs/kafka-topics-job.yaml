@@ -1,0 +1,61 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: kafka-topics-init
+  namespace: trading-system
+spec:
+  backoffLimit: 10
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: kafka-init
+          image: confluentinc/cp-kafka:7.5.0
+
+          command:
+            - bash
+            - -c
+            - |
+              echo "Waiting for Kafka..."
+
+              # Wait until Kafka is reachable
+              until kafka-topics --bootstrap-server kafka.trading-system.svc.cluster.local:9092 --list; do
+                echo "Kafka not ready yet... retrying"
+                sleep 5
+              done
+
+              echo "Kafka is ready. Creating topics..."
+
+              kafka-topics --bootstrap-server kafka.trading-system.svc.cluster.local:9092 \
+                --create --if-not-exists \
+                --topic transactions \
+                --partitions 12 \
+                --replication-factor 1 \
+                --config retention.ms=604800000 \
+                --config cleanup.policy=delete
+
+              kafka-topics --bootstrap-server kafka.trading-system.svc.cluster.local:9092 \
+                --create --if-not-exists \
+                --topic prices \
+                --partitions 6 \
+                --replication-factor 1 \
+                --config cleanup.policy=compact \
+                --config min.cleanable.dirty.ratio=0.1
+
+              kafka-topics --bootstrap-server kafka.trading-system.svc.cluster.local:9092 \
+                --create --if-not-exists \
+                --topic transactions_processed \
+                --partitions 12 \
+                --replication-factor 1 \
+                --config retention.ms=604800000 \
+                --config cleanup.policy=delete
+
+              kafka-topics --bootstrap-server kafka.trading-system.svc.cluster.local:9092 \
+                --create --if-not-exists \
+                --topic transactions_dlq \
+                --partitions 6 \
+                --replication-factor 1 \
+                --config retention.ms=1209600000 \
+                --config cleanup.policy=delete
+
+              echo "Kafka topics initialized successfully!"
