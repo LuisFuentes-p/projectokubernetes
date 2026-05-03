@@ -3,7 +3,7 @@ name: Build and Push Docker Images
 on:
   push:
     branches:
-      - main
+      - master
       - develop
     paths:
       - 'TransactionProcessor/**'
@@ -15,7 +15,7 @@ on:
       - '.github/workflows/build-push-images.yml'
   pull_request:
     branches:
-      - main
+      - master
       - develop
     paths:
       - 'TransactionProcessor/**'
