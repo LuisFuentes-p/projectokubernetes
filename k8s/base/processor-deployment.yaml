@@ -15,8 +15,8 @@ spec:
     spec:
       containers:
       - name: processor
-        image: transaction-processor:dev
-        imagePullPolicy: IfNotPresent
+        image: phipho/transaction-processor:latest
+        imagePullPolicy: Always
         env:
         - name: KAFKA_BOOTSTRAP
           value: kafka.trading-system.svc.cluster.local:9092

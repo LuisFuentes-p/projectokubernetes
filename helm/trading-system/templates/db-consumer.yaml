@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: db-consumer
+  namespace: trading-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: db-consumer
+  template:
+    metadata:
+      labels:
+        app: db-consumer
+    spec:
+      containers:
+        - name: db-consumer
+          image: your-image:latest
+          env:
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              value: "kafka:9092"

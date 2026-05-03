@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: dashboard
-        image: dashboard:dev
-        imagePullPolicy: IfNotPresent
+        image: phipho/dashboard:latest
+        imagePullPolicy: Always
         ports:
         - containerPort: 8050

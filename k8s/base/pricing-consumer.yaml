@@ -15,13 +15,13 @@ spec:
     spec:
       containers:
       - name: pricing-consumer
-        image: pricing-consumer:dev
-        imagePullPolicy: IfNotPresent
+        image: phipho/pricing-consumer:latest
+        imagePullPolicy: Always
         env:
         - name: KAFKA_BOOTSTRAP
           value: kafka.trading-system.svc.cluster.local:9092
         - name: POSTGRES_HOST
-          value: postgres-postgresql.default.svc.cluster.local
+          value: pg-cluster-rw.trading-system.svc.cluster.local
         envFrom:
         - secretRef:
-            name: postgres-secret
+            name: pg-cluster-app

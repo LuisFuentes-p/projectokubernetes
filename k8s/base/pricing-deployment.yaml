@@ -15,8 +15,8 @@ spec:
     spec:
       containers:
       - name: pricing
-        image: pricing-service:dev
-        imagePullPolicy: IfNotPresent
+        image: phipho/pricing-service:latest
+        imagePullPolicy: Always
         env:
         - name: KAFKA_BOOTSTRAP
           value: kafka.trading-system.svc.cluster.local:9092

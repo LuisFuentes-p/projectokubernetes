@@ -1,0 +1,34 @@
+replicaCount: 1
+
+image:
+  repository: your-image
+  tag: latest
+  pullPolicy: IfNotPresent
+
+nameOverride: ""
+fullnameOverride: ""
+
+service:
+  type: ClusterIP
+  port: 8080   # optional (only if your app exposes HTTP metrics)
+
+env:
+  kafkaBootstrapServers: "kafka:9092"
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+livenessProbe: {}
+readinessProbe: {}
+
+autoscaling:
+  enabled: false
+
+nodeSelector: {}
+tolerations: []
+affinity: {}

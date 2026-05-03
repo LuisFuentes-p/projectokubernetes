@@ -2,6 +2,7 @@ from kafka import KafkaConsumer
 import json
 import psycopg2
 import time
+import os
 
 from consumer_logic import prepare_record
 
@@ -24,11 +25,19 @@ def create_consumer(topic, group):
 def main():
     consumer = create_consumer('transactions_processed', 'db-consumer-group')
 
+    # Read DB credentials from environment (Kubernetes secret) with Docker Compose defaults
+    db_host = os.getenv('host', 'postgres')
+    db_port = os.getenv('port', '5432')
+    db_name = os.getenv('dbname', 'transactions_db')
+    db_user = os.getenv('user', 'user')
+    db_password = os.getenv('password', 'password')
+
     conn = psycopg2.connect(
-        host="postgres",
-        database="transactions_db",
-        user="user",
-        password="password"
+        host=db_host,
+        port=int(db_port),
+        database=db_name,
+        user=db_user,
+        password=db_password
     )
     cursor = conn.cursor()
 
