@@ -1,21 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: pricing
-  namespace: trading-system
+  name: pricing-service
+  namespace: {{ .Release.Namespace }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: pricing
+      app: pricing-service
   template:
     metadata:
       labels:
-        app: pricing
+        app: pricing-service
     spec:
       containers:
         - name: pricing
-          image: your-image:latest
+          image: phipho/pricing-service:latest
+          imagePullPolicy: Always
           env:
-            - name: KAFKA_BOOTSTRAP_SERVERS
-              value: "kafka:9092"
+            - name: KAFKA_BOOTSTRAP
+              value: kafka.{{ .Release.Namespace }}.svc.cluster.local:9092

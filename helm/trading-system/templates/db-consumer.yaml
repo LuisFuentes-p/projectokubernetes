@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: db-consumer
-  namespace: trading-system
+  namespace: {{ .Release.Namespace }}
 spec:
   replicas: 1
   selector:
@@ -14,8 +14,14 @@ spec:
         app: db-consumer
     spec:
       containers:
-        - name: db-consumer
-          image: your-image:latest
+        - name: consumer
+          image: phipho/transaction-consumer:latest
+          imagePullPolicy: Always
           env:
-            - name: KAFKA_BOOTSTRAP_SERVERS
-              value: "kafka:9092"
+            - name: KAFKA_BOOTSTRAP
+              value: kafka.{{ .Release.Namespace }}.svc.cluster.local:9092
+            - name: POSTGRES_HOST
+              value: pg-cluster-rw.{{ .Release.Namespace }}.svc.cluster.local
+          envFrom:
+            - secretRef:
+                name: pg-cluster-app

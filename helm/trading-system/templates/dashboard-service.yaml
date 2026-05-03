@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: dashboard
+  namespace: {{ .Release.Namespace }}
+spec:
+  type: NodePort
+  selector:
+    app: dashboard
+  ports:
+    - port: 8050
+      targetPort: 8050
+      nodePort: 30080

@@ -1,21 +1,28 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: processor
-  namespace: trading-system
+  name: transaction-processor
+  namespace: {{ .Release.Namespace }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: processor
+      app: transaction-processor
   template:
     metadata:
       labels:
-        app: processor
+        app: transaction-processor
     spec:
       containers:
         - name: processor
-          image: your-image:latest
+          image: phipho/transaction-processor:latest
+          imagePullPolicy: Always
           env:
-            - name: KAFKA_BOOTSTRAP_SERVERS
-              value: "kafka:9092"
+            - name: KAFKA_BOOTSTRAP
+              value: kafka.{{ .Release.Namespace }}.svc.cluster.local:9092
+            - name: TRANSACTIONS_TOPIC
+              value: transactions
+            - name: PRICES_TOPIC
+              value: prices
+            - name: OUTPUT_TOPIC
+              value: transactions_processed

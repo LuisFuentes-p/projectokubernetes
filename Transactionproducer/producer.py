@@ -1,15 +1,17 @@
 from kafka import KafkaProducer
 import json
 import time
+import os
 
 from producer_logic import load_commodities, generate_transaction
 
 
 def create_producer():
+    kafka_bootstrap = os.getenv("KAFKA_BOOTSTRAP", "kafka:9092")
     for _ in range(10):
         try:
             return KafkaProducer(
-                bootstrap_servers='kafka:9092',
+                bootstrap_servers=kafka_bootstrap,
                 value_serializer=lambda v: json.dumps(v).encode('utf-8'),
                 key_serializer=lambda k: k.encode('utf-8') if k else None
             )

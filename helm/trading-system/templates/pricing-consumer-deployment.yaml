@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pricing-consumer
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pricing-consumer
+  template:
+    metadata:
+      labels:
+        app: pricing-consumer
+    spec:
+      containers:
+      - name: pricing-consumer
+        image: phipho/pricing-consumer:latest
+        imagePullPolicy: Always
+        env:
+        - name: KAFKA_BOOTSTRAP
+          value: kafka.{{ .Release.Namespace }}.svc.cluster.local:9092
+        - name: POSTGRES_HOST
+          value: pg-cluster-rw.{{ .Release.Namespace }}.svc.cluster.local
+        envFrom:
+        - secretRef:
+            name: pg-cluster-app

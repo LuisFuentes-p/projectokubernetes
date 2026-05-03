@@ -1,0 +1,11 @@
+{{- if .Values.cnpgCluster.enabled }}
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: {{ .Values.cnpgCluster.name }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  instances: {{ .Values.cnpgCluster.instances }}
+  storage:
+    size: {{ .Values.cnpgCluster.storageSize }}
+{{- end }}

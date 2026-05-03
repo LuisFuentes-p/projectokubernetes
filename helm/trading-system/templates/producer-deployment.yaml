@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: producer
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: producer
+  template:
+    metadata:
+      labels:
+        app: producer
+    spec:
+      containers:
+      - name: producer
+        image: phipho/transaction-producer:latest
+        imagePullPolicy: Always
+        env:
+        - name: KAFKA_BOOTSTRAP
+          value: kafka.{{ .Release.Namespace }}.svc.cluster.local:9092

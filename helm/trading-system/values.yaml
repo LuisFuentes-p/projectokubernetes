@@ -32,3 +32,19 @@ autoscaling:
 nodeSelector: {}
 tolerations: []
 affinity: {}
+
+cnpgOperator:
+  enabled: false
+
+cnpgCluster:
+  enabled: false
+  name: pg-cluster
+  instances: 1
+  storageSize: 1Gi
+
+monitoring:
+  enabled: false
+
+kube-prometheus-stack:
+  grafana:
+    enabled: true

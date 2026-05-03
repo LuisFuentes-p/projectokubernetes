@@ -8,11 +8,12 @@ from consumer_logic import prepare_record
 
 
 def create_consumer(topic, group):
+    kafka_bootstrap = os.getenv("KAFKA_BOOTSTRAP", "kafka:9092")
     for _ in range(10):
         try:
             return KafkaConsumer(
                 topic,
-                bootstrap_servers='kafka:9092',
+                bootstrap_servers=kafka_bootstrap,
                 group_id=group,
                 auto_offset_reset='earliest',
                 value_deserializer=lambda m: json.loads(m.decode("utf-8"))

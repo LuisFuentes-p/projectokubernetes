@@ -5,12 +5,13 @@ import time
 import os
 
 # --- Kafka Consumer ---
+kafka_bootstrap = os.getenv("KAFKA_BOOTSTRAP", "kafka:9092")
 consumer = None
 for _ in range(10):
     try:
         consumer = KafkaConsumer(
             'prices',
-            bootstrap_servers='kafka:9092',
+            bootstrap_servers=kafka_bootstrap,
             group_id='price-db-consumer',
             auto_offset_reset='earliest',
             value_deserializer=lambda m: json.loads(m.decode("utf-8"))
