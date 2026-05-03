@@ -40,22 +40,22 @@ jobs:
         service:
           - name: TransactionProcessor
             image: transaction-processor
-            dockerfile: TransactionProcessor/dockerfile
+            context: TransactionProcessor
           - name: TransactionConsumer
             image: transaction-consumer
-            dockerfile: TransactionConsumer/dockerfile
+            context: TransactionConsumer
           - name: Transactionproducer
             image: transaction-producer
-            dockerfile: Transactionproducer/dockerfile
+            context: Transactionproducer
           - name: PricingService
             image: pricing-service
-            dockerfile: PricingService/dockerfile
+            context: PricingService
           - name: PricingConsumer
             image: pricing-consumer
-            dockerfile: PricingConsumer/dockerfile
+            context: PricingConsumer
           - name: Dash
             image: dashboard
-            dockerfile: Dash/dockerfile
+            context: Dash
 
     steps:
       - name: Checkout code
@@ -87,9 +87,9 @@ jobs:
       - name: Build and push image
         uses: docker/build-push-action@v5
         with:
-          context: .
-          file: ${{ matrix.service.dockerfile }}
-          push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+          context: ${{ matrix.service.context }}
+          file: ${{ matrix.service.context }}/dockerfile
+          push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
@@ -99,8 +99,8 @@ jobs:
         if: github.event_name == 'pull_request'
         uses: docker/build-push-action@v5
         with:
-          context: .
-          file: ${{ matrix.service.dockerfile }}
+          context: ${{ matrix.service.context }}
+          file: ${{ matrix.service.context }}/dockerfile
           push: false
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
